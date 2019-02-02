@@ -2,6 +2,8 @@ language: cpp
 
 os:
   - linux
+  - osx
+  - windows
 
 dist: xenial
 
@@ -9,6 +11,9 @@ compiler:
   - gcc
   - clang
 
+env:
+  - MODE=debug
+  - MODE=release
 
 addons:
   apt:
@@ -20,13 +25,16 @@ addons:
       - libxml2-dev
       - zlib1g-dev
 
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install graphviz; fi
+# before_install:
+#   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
+#   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install graphviz; fi
 
 
-script:
+install:
   - export "PATH=$TRAVIS_BUILD_DIR/bin:$PATH"
   - cp configure.user.dist configure.user
   - ./configure WITH_QTENV=no WITH_OSG=no WITH_OSGEARTH=no
-  - make -j4 MODE=debug
+  - make -j4 MODE=$MODE
+
+script:
+  - cd test/core; ./runtest
