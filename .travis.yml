@@ -9,8 +9,7 @@ compiler:
   - gcc
   - clang
 
-  install: make
-
+install: make
 
 addons:
   apt:
@@ -28,7 +27,7 @@ before_install:
 
 
 script:
-  - export PATH=$TRAVIS_BUILD_DIR/bin:$PATH
+  - export "PATH=$TRAVIS_BUILD_DIR/bin:$PATH"
   - cp configure.user.dist configure.user
   - ./configure WITH_QTENV=no WITH_OSG=no WITH_OSGEARTH=no
   - make -j4 MODE=debug
