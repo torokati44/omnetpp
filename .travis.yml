@@ -1,0 +1,30 @@
+language: cpp
+
+os:
+  - linux
+
+dist: xenial
+
+compiler:
+  - gcc
+  - clang
+
+addons:
+  apt:
+    packages:
+      - graphviz
+      - bison
+      - flex
+      - perl
+      - libxml2-dev
+      - zlib1g-dev
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install graphviz; fi
+
+script:
+  - . setenv
+  - cp configure.user.dist configure.user
+  - ./configure WITH_QTENV=no WITH_OSG=no WITH_OSGEARTH=no
+  - make -j4 MODE=debug
