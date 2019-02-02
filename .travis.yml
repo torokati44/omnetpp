@@ -1,4 +1,4 @@
-language: generic
+language: cpp
 
 os:
   - linux
@@ -9,7 +9,6 @@ compiler:
   - gcc
   - clang
 
-install: make
 
 addons:
   apt:
