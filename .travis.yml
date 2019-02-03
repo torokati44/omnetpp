@@ -24,6 +24,9 @@ addons:
       - perl
       - libxml2-dev
       - zlib1g-dev
+  choco:
+    packages:
+      - winflexbison
 
 # before_install:
 #   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
