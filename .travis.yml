@@ -35,7 +35,7 @@ addons:
 
 install:
   - export "PATH=$TRAVIS_BUILD_DIR/bin:$PATH"
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install winflexbison3; alias flex=win_flex bison=win_bison ; export PATH="/c/ProgramData/chocolatey/lib/winflexbison3/tools:$PATH" ; fi;
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install winflexbison3; alias flex=win_flex.exe bison=win_bison.exe ; export PATH="/c/ProgramData/chocolatey/lib/winflexbison3/tools:$PATH" ; fi;
 #  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then pacman -S flex bison ; fi;
   - cp configure.user.dist configure.user
   - ./configure WITH_QTENV=no WITH_OSG=no WITH_OSGEARTH=no
