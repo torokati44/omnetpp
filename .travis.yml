@@ -24,9 +24,9 @@ addons:
       - perl
       - libxml2-dev
       - zlib1g-dev
-  choco:
-    packages:
-      - winflexbison
+#  choco:
+#    packages:
+#      - winflexbison
 
 # before_install:
 #   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
@@ -35,6 +35,7 @@ addons:
 
 install:
   - export "PATH=$TRAVIS_BUILD_DIR/bin:$PATH"
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install flexbison; fi;
   - cp configure.user.dist configure.user
   - ./configure WITH_QTENV=no WITH_OSG=no WITH_OSGEARTH=no
   - make -j4 MODE=$MODE
