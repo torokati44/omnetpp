@@ -35,7 +35,7 @@ addons:
 
 install:
   - export "PATH=$TRAVIS_BUILD_DIR/bin:$PATH"
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install winflexbison3; fi;
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install winflexbison3; export FLEX=win_fles BISON=win_bison ; fi;
   - cp configure.user.dist configure.user
   - ./configure WITH_QTENV=no WITH_OSG=no WITH_OSGEARTH=no
   - make -j4 MODE=$MODE
