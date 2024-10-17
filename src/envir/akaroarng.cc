@@ -16,6 +16,8 @@
   `license' for details on this and other legal matters.
 *--------------------------------------------------------------*/
 
+#include "omnetpp/platdep/config.h"
+
 #ifdef WITH_AKAROA
 
 #include <akaroa/distributions.H>  // for UniformInt()

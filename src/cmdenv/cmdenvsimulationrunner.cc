@@ -32,6 +32,7 @@
 #include "envir/genericeventlooprunner.h"
 #include "envir/inifilecontents.h"
 #include "envir/resultfileutils.h"
+#include "omnetpp/platdep/config.h"
 #include "omnetpp/ccomponenttype.h"
 #include "omnetpp/cconfigoption.h"
 #include "omnetpp/checkandcast.h"

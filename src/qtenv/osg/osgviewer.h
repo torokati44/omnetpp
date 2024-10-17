@@ -22,6 +22,7 @@
 #include "qtenv/qtenvapp.h"
 #include "omnetpp/cosgcanvas.h"
 #include "omnetpp/osgutil.h"
+#include "omnetpp/platdep/config.h"
 
 #include <QtWidgets/QAction>
 #include <QtWidgets/QOpenGLWidget>

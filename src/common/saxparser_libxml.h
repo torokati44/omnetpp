@@ -16,6 +16,8 @@
 #ifndef __OMNETPP_COMMON_SAXPARSER_LIBXML_H
 #define __OMNETPP_COMMON_SAXPARSER_LIBXML_H
 
+#include "omnetpp/platdep/config.h"
+
 #ifdef WITH_LIBXML
 
 #include <cstdio>
