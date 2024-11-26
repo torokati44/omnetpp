@@ -17,6 +17,7 @@ RESET='\033[0m'
 assume_yes=false
 no_3d=false
 no_gui=false
+no_python=false
 PYTHON3=python3
 
 # print the usage and supported options
@@ -271,6 +272,10 @@ while [[ $# -gt 0 ]]; do
             no_3d=true
             shift
             ;;
+        --no-python)
+            no_python=true
+            shift
+            ;;
         *)
             echo "Invalid option: $1" >&2
             print_usage
@@ -318,6 +323,7 @@ echo
 # disable some config options based on the provided command-line flags
 if $no_gui; then CONFIGOPTS="$CONFIGOPTS WITH_QTENV=no"; fi
 if $no_3d; then CONFIGOPTS="$CONFIGOPTS WITH_OSG=no"; fi
+if $no_python; then CONFIGOPTS="$CONFIGOPTS WITH_PYTHON=no"; fi
 echo_run ./configure $CONFIGOPTS
 
 # build
