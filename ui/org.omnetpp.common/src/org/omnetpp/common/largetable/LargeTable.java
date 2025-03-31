@@ -12,9 +12,11 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.dnd.Clipboard;
@@ -184,6 +186,16 @@ public class LargeTable extends Composite
      * Used to draw the header of the table.
      */
     protected Table table;
+
+    /**
+     * Wrapper composite for the table with TableColumnLayout.
+     */
+    protected Composite tableComposite;
+
+    /**
+     * Table column layout for managing column sizes.
+     */
+    protected TableColumnLayout tableColumnLayout;
 
     /**
      * Provides tooltips.
@@ -381,17 +393,21 @@ public class LargeTable extends Composite
     }
 
     private void createTable(Composite parent) {
-        table = new Table(parent, SWT.NONE);
+        // Create a wrapper composite with TableColumnLayout
+        tableComposite = new Composite(parent, SWT.NONE);
+        tableColumnLayout = new TableColumnLayout();
+        tableComposite.setLayout(tableColumnLayout);
+
+        table = new Table(tableComposite, SWT.NONE);
         table.setHeaderVisible(true);
         table.setLinesVisible(false);
+
         table.addControlListener(new ControlAdapter() {
             @Override
             public void controlResized(ControlEvent e) {
                 composite.layout();
             }
         });
-
-        table.setSize(table.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
         table.setHeaderVisible(true);
 
@@ -443,14 +459,22 @@ public class LargeTable extends Composite
 
     public TableColumn createColumn(int style, int index) {
         TableColumn tableColumn = new TableColumn(table, style, index);
+        // Set default column properties with ColumnPixelData
+        tableColumnLayout.setColumnData(tableColumn, new ColumnPixelData(100, true));
+
         tableColumn.addControlListener(new ControlAdapter() {
             @Override
             public void controlResized(ControlEvent e) {
-                // Delaying this is an attempt to work around
-                // https://github.com/omnetpp/omnetpp/issues/891
-                Display.getCurrent().asyncExec(() -> {
-                    recomputeTableSize();
-                });
+                // Update the ColumnPixelData when column is manually resized
+                if (!tableColumn.isDisposed()) {
+                    tableColumnLayout.setColumnData(tableColumn,
+                            new ColumnPixelData(tableColumn.getWidth(), true));
+
+                    // Still need to recompute table size for scrolled area
+                    Display.getCurrent().asyncExec(() -> {
+                        recomputeTableSize();
+                    });
+                }
             }
         });
         return tableColumn;
@@ -865,11 +889,9 @@ public class LargeTable extends Composite
         if (table.isDisposed() || composite.isDisposed())
             return;
 
-        int size = 0;
-        for (int i = 0; i < table.getColumnCount(); i++)
-            size += table.getColumn(i).getWidth(); // columnOrder doesn't matter
-
-        table.setSize(size, table.getSize().y);
+        // The total width is now managed by TableColumnLayout
+        int width = tableComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+        tableComposite.setSize(width, tableComposite.getSize().y);
         composite.setSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
     }
 
@@ -1083,9 +1105,10 @@ class LargeTableCompositeLayout extends Layout {
     @Override
     protected Point computeSize(Composite composite, int wHint, int hHint, boolean flushCache) {
         Composite scrolledComposite = composite.getParent();
-        Table table = (Table)composite.getChildren()[1];
-        int height = scrolledComposite.getClientArea().height; // about the LargeTable widget's height (note: NOT rowHeight*numRows!)
-        int width = table.computeSize(SWT.DEFAULT, SWT.DEFAULT).x; // about the sum of the column widths
+        // Table is now inside tableComposite
+        Composite tableComposite = (Composite)composite.getChildren()[1];
+        int height = scrolledComposite.getClientArea().height;
+        int width = tableComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
         return new Point(width, height);
     }
 
@@ -1094,13 +1117,15 @@ class LargeTableCompositeLayout extends Layout {
         Composite scrolledComposite = composite.getParent();
         Assert.isTrue(composite.getChildren().length == 2);
         Canvas canvas = (Canvas)composite.getChildren()[0]; // content (rows)
-        Table table = (Table)composite.getChildren()[1]; // header
+        Composite tableComposite = (Composite)composite.getChildren()[1]; // table wrapper
+
+        Table table = (Table)tableComposite.getChildren()[0]; // the actual table
 
         int height = scrolledComposite.getClientArea().height;
-        int width = table.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+        int width = tableComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
         int headerHeight = table.getHeaderHeight();
 
-        table.setBounds(0, 0, width, headerHeight);
+        tableComposite.setBounds(0, 0, width, headerHeight);
         canvas.setBounds(0, headerHeight, width, height - headerHeight);
     }
 }
