@@ -40,6 +40,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.layout.FillLayout;
@@ -273,14 +274,29 @@ public class LargeTable extends Composite
         });
     }
 
+    protected static Color blendColor(Color color, Color against) {
+        int alpha = color.getAlpha();
+        int r = (color.getRed() * alpha + against.getRed() * (255 - alpha)) / 255;
+        int g = (color.getGreen() * alpha + against.getGreen() * (255 - alpha)) / 255;
+        int b = (color.getBlue() * alpha + against.getBlue() * (255 - alpha)) / 255;
+        return new Color(Display.getCurrent(), r, g, b);
+    }
+
     protected void initColors() {
         Display display = Display.getCurrent();
-        setBackground(display.getSystemColor(SWT.COLOR_LIST_BACKGROUND));
+        Color bg = display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
+        setBackground(bg);
         setForeground(display.getSystemColor(SWT.COLOR_LIST_FOREGROUND));
         selectionBackground = display.getSystemColor(SWT.COLOR_LIST_SELECTION);
         selectionForeground = display.getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT);
         unfocusedSelectionBackground = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND); // ?
         unfocusedSelectionForeground = display.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND);
+
+        if (selectionBackground.getAlpha() < 255)
+            selectionBackground = blendColor(selectionBackground, bg);
+
+        if (unfocusedSelectionBackground.getAlpha() < 255)
+            unfocusedSelectionBackground = blendColor(unfocusedSelectionBackground, bg);
     }
 
     /**
