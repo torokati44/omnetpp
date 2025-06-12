@@ -19,8 +19,17 @@ jobs:
 
     runs-on: ubuntu-24.04
 
+    outputs:
+      # e.g.: "omnetpp-6.2.0pre1"
+      omnetpp_version: ${{ steps.cat_version.outputs.omnetpp_version }}
+
     steps:
       - uses: actions/checkout@v4
+
+      - id: cat_version
+        run: |
+          cat Version
+          echo "omnetpp_version=$(cat Version)" >> "$GITHUB_OUTPUT"
 
       - name: Build IDE
         working-directory: releng
@@ -65,7 +74,7 @@ jobs:
 
       - name: Extract tools
         if: matrix.os == 'windows-latest'
-        working-directory: omnetpp-6.2.0/tools
+        working-directory: ${{ needs.build_ide.outputs.omnetpp_version }}/tools
         shell: cmd # Because I had some trouble with pwsh.
         # Better use backslashes here for paths...
         run: |
@@ -74,7 +83,7 @@ jobs:
 
       - name: Install release (Windows)
         if: matrix.os == 'windows-latest'
-        working-directory: omnetpp-6.2.0/tools
+        working-directory: ${{ needs.build_ide.outputs.omnetpp_version }}/tools
         # These are needed for the bundled MinGW bash to find the included binaries.
         env:
           MSYSTEM: CLANG64
@@ -88,7 +97,7 @@ jobs:
           win32.x86_64\usr\bin\bash -l -c '
             GITHUB_REPOSITORY="${{ github.repository }}";
             REPOSITORY_NAME="${GITHUB_REPOSITORY#*/}";
-            cd /d/a/$REPOSITORY_NAME/$REPOSITORY_NAME/omnetpp-6.2.0;
+            cd /d/a/$REPOSITORY_NAME/$REPOSITORY_NAME/${{ needs.build_ide.outputs.omnetpp_version }};
             source setenv;
             ./configure;
             make -j4;
@@ -100,7 +109,7 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: |
           tar -xf *${{ matrix.build }}*
-          cd omnetpp-6.2.0
+          cd ${{ needs.build_ide.outputs.omnetpp_version }}
           ${{ matrix.preinstall_cmd }}
           ./install.sh -y
           source setenv
@@ -137,7 +146,7 @@ jobs:
           run: |
             cd /omnetpp
             tar -xf *linux-x86_64.tgz
-            cd omnetpp-6.2.0
+            cd ${{ needs.build_ide.outputs.omnetpp_version }}
             ${{ matrix.preinstall_cmd }}
             ./install.sh -y ${{ matrix.install_opts }}
             source setenv
