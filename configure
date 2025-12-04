@@ -642,6 +642,8 @@ BACKWARD_LDFLAGS
 QTENV_LDFLAGS
 QT_LIBS
 QT_CFLAGS
+PYTHON_EMBED_LDFLAGS
+PYTHON_EMBED_CFLAGS
 PYTHON_LDFLAGS
 PYTHON_CFLAGS
 HAVE_SWAPCONTEXT
@@ -2897,6 +2899,7 @@ PREFER_CLANG=${PREFER_CLANG:-yes}
 PREFER_LLD=${PREFER_LLD:-yes}
 USE_MS_ABI=${USE_MS_ABI:-no}
 WITH_PYTHON=${WITH_PYTHON:-yes}
+WITH_SCAVE_PYTHON_BINDINGS=${WITH_SCAVE_PYTHON_BINDINGS:-yes}
 WITH_QTENV=${WITH_QTENV:-yes}
 WITH_PARSIM=${WITH_PARSIM:-no}
 MSGC=${MSGC:-opp_msgc}
@@ -7623,6 +7626,7 @@ if test "$WITH_PYTHON" = "yes"; then
 
 fi
 
+# $WITH_SCAVE_PYTHON_BINDINGS should not be relevant as a C++ macro
 
 if test "$HAVE_DLOPEN" = "1"; then
   printf "%s\n" "#define HAVE_DLOPEN 1" >>confdefs.h
@@ -7647,6 +7651,8 @@ ac_config_headers="$ac_config_headers include/omnetpp/platdep/config.h"
 #----------------------
 # Substitutions.
 #----------------------
+
+
 
 
 
