@@ -26,6 +26,8 @@ export WITH_LIBXML=no
 export WITH_OSG=yes
 export WITH_OSGEARTH=no
 export WITH_SYSTEMC=no
+export WITH_PYTHON=yes
+export WITH_SCAVE_PYTHON_BINDINGS=yes
 export PREFER_CLANG=yes
 export PREFER_LLD=yes
 export MPI_LIBS=
@@ -102,6 +104,8 @@ compile() {
     $TWEAKCONFIG setoradd configure.user WITH_OSG  "$WITH_OSG" || failure $CFG
     $TWEAKCONFIG setoradd configure.user WITH_OSGEARTH  "$WITH_OSGEARTH" || failure $CFG
     $TWEAKCONFIG setoradd configure.user WITH_SYSTEMC  "$WITH_SYSTEMC" || failure $CFG
+    $TWEAKCONFIG setoradd configure.user WITH_PYTHON  "$WITH_PYTHON" || failure $CFG
+    $TWEAKCONFIG setoradd configure.user WITH_SCAVE_PYTHON_BINDINGS  "$WITH_SCAVE_PYTHON_BINDINGS" || failure $CFG
     $TWEAKCONFIG setoradd configure.user MPI_LIBS  "$MPI_LIBS" || failure $CFG
 
     echo "    Configuring..."
@@ -117,6 +121,8 @@ compile() {
     $TWEAKCONFIG assert Makefile.inc WITH_OSG  "$WITH_OSG" || failure $CFG
     $TWEAKCONFIG assert Makefile.inc WITH_OSGEARTH  "$WITH_OSGEARTH" || failure $CFG
     $TWEAKCONFIG assert Makefile.inc WITH_SYSTEMC  "$WITH_SYSTEMC" || failure $CFG
+    $TWEAKCONFIG assert Makefile.inc WITH_PYTHON  "$WITH_PYTHON" || failure $CFG
+    $TWEAKCONFIG assert Makefile.inc WITH_SCAVE_PYTHON_BINDINGS  "$WITH_SCAVE_PYTHON_BINDINGS" || failure $CFG
 
     echo "    Building..."
     $MAKE_PROG cleanall >"$LOG_DIR/$CFG-makeclean.out" 2>"$LOG_DIR/$CFG-makeclean.err" || failure "make cleanall failed - $CFG"
@@ -232,6 +238,48 @@ if [ "$PLATFORM" = "linux" ]; then
         (WITH_SYSTEMC=yes compile)
   fi
 fi
+
+########################################
+# check building with Scave Python bindings but no runtime Python support
+CFG=with_scave_bindings_no_python
+(WITH_PYTHON=no WITH_SCAVE_PYTHON_BINDINGS=yes compile)
+
+contains "Cmdenv : command-line user interface" yes
+contains "Qtenv : Qt-based graphical user interface" yes
+
+(TEST_PROG="opp_run -v" contains "WITH_PYTHON" yes)
+(runtest core)
+(runtest common)
+(runtest envir)
+(runtest makemake)
+
+########################################
+# check building with Python support but without Scave Python bindings
+CFG=with_python_no_scave_bindings
+(WITH_PYTHON=yes WITH_SCAVE_PYTHON_BINDINGS=no compile)
+
+contains "Cmdenv : command-line user interface" yes
+contains "Qtenv : Qt-based graphical user interface" yes
+
+(TEST_PROG="opp_run -v" contains "WITH_PYTHON" yes)
+(runtest core)
+(runtest common)
+(runtest envir)
+(runtest makemake)
+
+#########################################
+# check building without Python support
+CFG=without_python
+(WITH_PYTHON=no WITH_SCAVE_PYTHON_BINDINGS=no compile)
+
+contains "Cmdenv : command-line user interface" yes
+contains "Qtenv : Qt-based graphical user interface" yes
+
+(TEST_PROG="opp_run -v" contains "WITH_PYTHON" no)
+(runtest core)
+(runtest common)
+(runtest envir)
+(runtest makemake)
 
 ########################################
 # check the static build
