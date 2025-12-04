@@ -900,6 +900,7 @@ fi
 #   import seaborn
 
 SYS_LIBS=""
+
 #---------------------------------
 # Check for python cflags and libs
 #---------------------------------
@@ -924,15 +925,25 @@ if test "$WITH_SCAVE_PYTHON_BINDINGS" = "yes"; then
     AC_MSG_ERROR([Python support was configured (WITH_SCAVE_PYTHON_BINDINGS=yes), but the Python 3 development package was not found.])
   fi
 
+  CFLAGS="$CFLAGS $PYTHON_CFLAGS"
+  SYS_LIBS="$SYS_LIBS $PYTHON_LDFLAGS"
+fi
+
+if test "$WITH_PYTHON" = "yes"; then
+  PYTHON_CONFIG="python/python3-config"
+
+  # the full --cflags output is full of compiler flags we don't want nor need
+  PYTHON_EMBED_CFLAGS=$($PYTHON3 $PYTHON_CONFIG --includes --embed)
+
   PYTHON_EMBED_LDFLAGS=$($PYTHON3 $PYTHON_CONFIG --ldflags --embed)
 
-  OPP_CHECK_LIB(python3-embed, Python.h, Py_Initialize(), $PYTHON_CFLAGS, $PYTHON_EMBED_LDFLAGS, python3_found)
+  OPP_CHECK_LIB(python3-embed, Python.h, Py_Initialize(), $PYTHON_EMBED_CFLAGS, $PYTHON_EMBED_LDFLAGS, python3_found)
 
   if test $python3_found != yes; then
-    AC_MSG_ERROR([Python support was configured (WITH_SCAVE_PYTHON_BINDINGS=yes), but the Python 3 development package was not found.])
+    AC_MSG_ERROR([Python support was configured (WITH_PYTHON=yes), but the Python 3 development package was not found.])
   fi
 
-  CFLAGS="$CFLAGS $PYTHON_CFLAGS"
+  CFLAGS="$CFLAGS $PYTHON_EMBED_CFLAGS"
   SYS_LIBS="$SYS_LIBS $PYTHON_EMBED_LDFLAGS"
 fi
 

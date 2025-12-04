@@ -5719,6 +5719,7 @@ fi
 #   import seaborn
 
 SYS_LIBS=""
+
 #---------------------------------
 # Check for python cflags and libs
 #---------------------------------
@@ -5773,17 +5774,27 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
     as_fn_error $? "Python support was configured (WITH_SCAVE_PYTHON_BINDINGS=yes), but the Python 3 development package was not found." "$LINENO" 5
   fi
 
+  CFLAGS="$CFLAGS $PYTHON_CFLAGS"
+  SYS_LIBS="$SYS_LIBS $PYTHON_LDFLAGS"
+fi
+
+if test "$WITH_PYTHON" = "yes"; then
+  PYTHON_CONFIG="python/python3-config"
+
+  # the full --cflags output is full of compiler flags we don't want nor need
+  PYTHON_EMBED_CFLAGS=$($PYTHON3 $PYTHON_CONFIG --includes --embed)
+
   PYTHON_EMBED_LDFLAGS=$($PYTHON3 $PYTHON_CONFIG --ldflags --embed)
 
 
    save_CXXFLAGS=$CXXFLAGS
    save_LIBS=$LIBS
 
-   CXXFLAGS="$PYTHON_CFLAGS"
+   CXXFLAGS="$PYTHON_EMBED_CFLAGS"
    LIBS="$PYTHON_EMBED_LDFLAGS"
 
-   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for python3-embed with CFLAGS=\"$PYTHON_CFLAGS\" LIBS=\"$PYTHON_EMBED_LDFLAGS\"" >&5
-printf %s "checking for python3-embed with CFLAGS=\"$PYTHON_CFLAGS\" LIBS=\"$PYTHON_EMBED_LDFLAGS\"... " >&6; }
+   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for python3-embed with CFLAGS=\"$PYTHON_EMBED_CFLAGS\" LIBS=\"$PYTHON_EMBED_LDFLAGS\"" >&5
+printf %s "checking for python3-embed with CFLAGS=\"$PYTHON_EMBED_CFLAGS\" LIBS=\"$PYTHON_EMBED_LDFLAGS\"... " >&6; }
 
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -5813,10 +5824,10 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
 
 
   if test $python3_found != yes; then
-    as_fn_error $? "Python support was configured (WITH_SCAVE_PYTHON_BINDINGS=yes), but the Python 3 development package was not found." "$LINENO" 5
+    as_fn_error $? "Python support was configured (WITH_PYTHON=yes), but the Python 3 development package was not found." "$LINENO" 5
   fi
 
-  CFLAGS="$CFLAGS $PYTHON_CFLAGS"
+  CFLAGS="$CFLAGS $PYTHON_EMBED_CFLAGS"
   SYS_LIBS="$SYS_LIBS $PYTHON_EMBED_LDFLAGS"
 fi
 
