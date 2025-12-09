@@ -900,8 +900,6 @@ fi
 #   import prettyplotlib
 #   import seaborn
 
-SYS_LIBS=""
-
 #---------------------------------
 # Check for python cflags and libs
 #---------------------------------
@@ -921,13 +919,6 @@ if test "$WITH_SCAVE_PYTHON_BINDINGS" = "yes"; then
   PYTHON_LDFLAGS=$($PYTHON3 $PYTHON_CONFIG --ldflags)
 
   OPP_CHECK_LIB_NOLINK(python3-dev, Python.h, PY_MAJOR_VERSION, $PYTHON_CFLAGS, python3_found)
-
-  if test $python3_found != yes; then
-    AC_MSG_ERROR([Python support was configured (WITH_SCAVE_PYTHON_BINDINGS=yes), but the Python 3 development package was not found.])
-  fi
-
-  CFLAGS="$CFLAGS $PYTHON_CFLAGS"
-  SYS_LIBS="$SYS_LIBS $PYTHON_LDFLAGS"
 fi
 
 if test "$WITH_PYTHON" = "yes"; then
@@ -945,8 +936,10 @@ if test "$WITH_PYTHON" = "yes"; then
   fi
 
   CFLAGS="$CFLAGS $PYTHON_EMBED_CFLAGS"
-  SYS_LIBS="$SYS_LIBS $PYTHON_EMBED_LDFLAGS"
+  LDFLAGS="$LDFLAGS $PYTHON_EMBED_LDFLAGS"
 fi
+
+SYS_LIBS=""
 
 #----------------------
 # Checks for standard libraries.
